@@ -16,21 +16,23 @@ const (
 )
 
 func main() {
-	var sum float64 = 3000           // cумма заказа
+	var sum float64 = 3000 // cумма заказа
+	var textstatus string
 	var status CustomerStatus = Gold // статус покупателя
 
 	// рассчет скидки по статусу
 	var discountPercent float64
 	switch status {
 	case Regular:
-		discountPercent = 0
+		textstatus = "Regular"
 	case Silver:
+		textstatus = "Silver"
 		discountPercent = 5
 	case Gold:
+		textstatus = "Gold"
 		discountPercent = 10
 	default:
-		fmt.Println("неизвестный статус")
-		discountPercent = 0
+		textstatus = "неизвестный статус"
 	}
 	// скидка в рублях
 	discount := sum * discountPercent / 100
@@ -50,6 +52,7 @@ func main() {
 	total := afterDiscount + delivery
 
 	// вывод
+	fmt.Printf("Сумма: %.2f, статус: %s\n", sum, textstatus)
 	fmt.Printf("Скидка: %.2f\n", discount)
 	fmt.Printf("Доставка: %.2f\n", delivery)
 	fmt.Printf("Итого: %.2f\n", total)
