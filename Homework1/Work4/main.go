@@ -5,50 +5,38 @@ import (
 	"strings"
 )
 
-const (
-	SecondsInMinute = 60
-	SecondsInHour   = 60 * SecondsInMinute
-	SecondsInDay    = 24 * SecondsInHour
-)
-
 func uptime(total int) string {
-	days := total / SecondsInDay
-	total = total % SecondsInDay
+	days := total / 86400
+	total = total % 86400
+	hours := total / 3600
+	total = total % 3600
+	minutes := total / 60
+	total = total % 60
+	seconds := total
 
-	hours := total / SecondsInHour
-	total = total % SecondsInHour
-
-	minutes := total / SecondsInMinute
-	seconds := total % SecondsInMinute
-
-	// Используем слайс для накопления частей строки
-	var parts []string
-
+	result := ""
 	if days > 0 {
-		parts = append(parts, fmt.Sprintf("%dд", days))
+		result += fmt.Sprintf("%dд ", days)
 	}
 	if hours > 0 {
-		parts = append(parts, fmt.Sprintf("%dч", hours))
+		result += fmt.Sprintf("%dч ", hours)
 	}
 	if minutes > 0 {
-		parts = append(parts, fmt.Sprintf("%dм", minutes))
+		result += fmt.Sprintf("%dм ", minutes)
 	}
 	if seconds > 0 {
-		parts = append(parts, fmt.Sprintf("%dс", seconds))
+		result += fmt.Sprintf("%dс ", seconds)
 	}
-
-	// Если ничего не добавилось (total == 0), возвращаем "0с"
-	if len(parts) == 0 {
+	if result == "" {
 		return "0с"
 	}
-
-	return strings.Join(parts, " ")
+	return strings.TrimSuffix(result, " ")
 }
 
 func main() {
-	fmt.Printf("%d -> %s\n", 93784, uptime(93784))
-	fmt.Printf("%d -> %s\n", 86405, uptime(86405))
-	fmt.Printf("%d -> %s\n", 3600, uptime(3600))
-	fmt.Printf("%d -> %s\n", 59, uptime(59))
-	fmt.Printf("%d -> %s\n", 0, uptime(0))
+	fmt.Println(uptime(93784))
+	fmt.Println(uptime(86405))
+	fmt.Println(uptime(3600))
+	fmt.Println(uptime(59))
+	fmt.Println(uptime(0))
 }
