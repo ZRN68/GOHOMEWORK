@@ -4,6 +4,10 @@ import (
 	"fmt"
 )
 
+// kopecksInRuble — сколько копеек в одном рубле.
+// Баланс хранится в копейках, поэтому для вывода в рублях делим на эту константу.
+const kopecksInRuble = 100
+
 // NewAccount создаёт счёт с балансом в копейках и возвращает три замыкания,
 // которые работают с одним и тем же балансом.
 func NewAccount(initial int64) (deposit func(int64), withdraw func(int64) error, balance func() int64) {
@@ -15,7 +19,8 @@ func NewAccount(initial int64) (deposit func(int64), withdraw func(int64) error,
 
 	withdraw = func(amount int64) error {
 		if amount > bal {
-			return fmt.Errorf("недостаточно средств (баланс %.2f)", float64(bal)/100)
+			// Переиспользуем formatMoney — не дублируем перевод копеек в рубли.
+			return fmt.Errorf("недостаточно средств (баланс %s)", formatMoney(bal))
 		}
 		bal -= amount
 		return nil
@@ -30,7 +35,7 @@ func NewAccount(initial int64) (deposit func(int64), withdraw func(int64) error,
 
 // formatMoney переводит копейки в строку рублей с двумя знаками.
 func formatMoney(kopecks int64) string {
-	return fmt.Sprintf("%.2f", float64(kopecks)/100)
+	return fmt.Sprintf("%.2f", float64(kopecks)/kopecksInRuble)
 }
 
 func main() {
@@ -40,20 +45,26 @@ func main() {
 	fmt.Printf("Счёт A: %s\n", formatMoney(balanceA()))
 
 	depositA(50000) // +500.00
-	fmt.Printf("\nПополнение 500.00 -> %s\n", formatMoney(balanceA()))
+	fmt.Printf("Пополнение 500.00 -> %s\n", formatMoney(balanceA()))
 
-	err := withdrawA(200000) // -2000.00 — не хватает
+	// Снятие 2000.00 — не хватает: печатаем ошибку.
+	err := withdrawA(200000)
 	if err != nil {
-		fmt.Printf("\nСнятие 2000.00: %v\n", err)
+		fmt.Printf("Снятие 2000.00: ошибка: %v\n", err)
+	} else {
+		fmt.Printf("Снятие 2000.00 -> %s\n", formatMoney(balanceA()))
 	}
 
-	err = withdrawA(30050) // -300.50
-	if err == nil {
-		fmt.Printf("\nСнятие 300.50 -> %s\n", formatMoney(balanceA()))
+	// Снятие 300.50 — успех: печатаем новый баланс.
+	err = withdrawA(30050)
+	if err != nil {
+		fmt.Printf("Снятие 300.50: ошибка: %v\n", err)
+	} else {
+		fmt.Printf("Снятие 300.50 -> %s\n", formatMoney(balanceA()))
 	}
 
 	// Счёт B независим от A
-	fmt.Printf("\nСчёт B: %s\n", formatMoney(balanceB()))
+	fmt.Printf("Счёт B: %s\n", formatMoney(balanceB()))
 
 	// Для наглядности: пополним B и проверим, что A не изменился.
 	depositB(10000) // +100.00
